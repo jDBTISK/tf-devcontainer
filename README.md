@@ -24,3 +24,5 @@ vscode の [devcontainer](https://code.visualstudio.com/docs/remote/containers) 
 | BASHRC_PATH | コンテナ内で利用する .bashrc のパス  |          | .devcontainer/.bashrc |
 | UID         | devcontainer Linux USER ID           |          | 1000                  |
 | GID         | devcontainer Linux GROUP ID          |          | 1000                  |
+
+`.devcontainer/devcontainer.json` の `name` 属性の値もプロジェクトに応じて変えてください。
