@@ -9,29 +9,38 @@ ENV LANG ja_JP.UTF-8
 ENV LANGUAGE ja_JP:ja
 ENV TZ JST-9
 
-ARG ARCH=x86_64
 ARG TF_VERSION=latest
 
-RUN RELEASES_URL=https://api.github.com/repos/hashicorp/terraform/releases/latest && \
+RUN TF_RELEASES_URL=https://api.github.com/repos/hashicorp/terraform/releases/latest && \
     if [ "${TF_VERSION}" = "latest" ]; then \
-    TF_VERSION=$(curl ${RELEASES_URL} | jq --raw-output '.tag_name' | cut -c 2-); fi && \
-    if [ "${ARCH}" = "arm64" ]; then TF_ARCH=${ARCH}; else TF_ARCH=amd64; fi && \
-    ZIP_NAME=terraform_${TF_VERSION}_linux_${TF_ARCH}.zip && \
+    TF_DL_VERSION=$(curl ${TF_RELEASES_URL} | jq --raw-output '.tag_name' | cut -c 2-); else \
+    TF_DL_VERSION=${TF_VERSION}; fi && \
+    if [ "$(arch)" = "arm64" ] || [ "$(arch)" = "aarch64" ]; then ARCH=arm64; else ARCH=amd64; fi && \
+    ZIP_NAME=terraform_${TF_DL_VERSION}_linux_${ARCH}.zip && \
     # terraform install
-    wget https://releases.hashicorp.com/terraform/${TF_VERSION}/${ZIP_NAME} && \
+    wget https://releases.hashicorp.com/terraform/${TF_DL_VERSION}/${ZIP_NAME} && \
     unzip ${ZIP_NAME} -d /usr/local/bin && \
-    rm -rf ${ZIP_NAME} && \
     # tfsec install
-    go install github.com/aquasecurity/tfsec/cmd/tfsec@latest && \
-    # tflint install
-    curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+    TFSEC_RELEASES_URL=https://api.github.com/repos/aquasecurity/tfsec/releases/latest && \
+    TFSEC_VERSION=$(curl ${TFSEC_RELEASES_URL} | jq --raw-output '.tag_name' | cut -c 2-) && \
+    ZIP_NAME=tfsec_${TFSEC_VERSION}_linux_${ARCH}.tar.gz && \
+    wget https://github.com/aquasecurity/tfsec/releases/download/v${TFSEC_VERSION}/${ZIP_NAME} && \
+    tar -zxvf ${ZIP_NAME} && \
+    mv tfsec /usr/local/bin
 
 # awscli install
-RUN if [ "${ARCH}" = "arm64" ]; then AWSCLI_ARCH=aarch64; else AWSCLI_ARCH=x86_64; fi && \
-    curl "https://awscli.amazonaws.com/awscli-exe-linux-${AWSCLI_ARCH}.zip" -o "awscliv2.zip" && \
+RUN if [ "$(arch)" = "arm64" ] || [ "$(arch)" = "aarch64" ]; then ARCH=aarch64; else ARCH=x86_64; fi && \
+    curl "https://awscli.amazonaws.com/awscli-exe-linux-${ARCH}.zip" -o "awscliv2.zip" && \
     unzip awscliv2.zip && \
     ./aws/install && \
     rm -rf aws awscliv2.zip
+
+# session manager plugin install
+RUN SSM_PLUGIN_URL_PREFIX=https://s3.amazonaws.com/session-manager-downloads/plugin/latest && \
+    if [ "$(arch)" = "arm64" ] || [ "$(arch)" = "aarch64" ]; then SSM_ARCH=arm64; else SSM_ARCH=64bit; fi && \
+    curl "${SSM_PLUGIN_URL_PREFIX}/ubuntu_${SSM_ARCH}/session-manager-plugin.deb" -o "session-manager-plugin.deb" && \
+    dpkg -i session-manager-plugin.deb && \
+    rm session-manager-plugin.deb
 
 ARG USERNAME=developer
 ARG GROUPNAME=developer

@@ -10,6 +10,7 @@ vscode の [devcontainer](https://code.visualstudio.com/docs/remote/containers) 
 - tfsec
 - tflint
 - awscli
+- session manager plugin
 
 がインストールされたコンテナを作成します。
 
@@ -17,12 +18,11 @@ vscode の [devcontainer](https://code.visualstudio.com/docs/remote/containers) 
 
 `.devcontainer/.env.example` を参考に `.devcontainer/.env` を作成することで、以下の変数に任意の値を設定可能です
 
-| name        | description                          | required | default               |
-| ----------- | ------------------------------------ | :------: | --------------------- |
-| ARCH        | CPU アーキテクチャ (arm64 or x86_64) |          | x86_64                |
-| TF_VERSION  | terraform version                    |          | latest                |
-| BASHRC_PATH | コンテナ内で利用する .bashrc のパス  |          | .devcontainer/.bashrc |
-| UID         | devcontainer Linux USER ID           |          | 1000                  |
-| GID         | devcontainer Linux GROUP ID          |          | 1000                  |
+| name        | description                         | required | default               |
+| ----------- | ----------------------------------- | :------: | --------------------- |
+| TF_VERSION  | terraform version                   |          | latest                |
+| BASHRC_PATH | コンテナ内で利用する .bashrc のパス |          | .devcontainer/.bashrc |
+| UID         | devcontainer Linux USER ID          |          | 1000                  |
+| GID         | devcontainer Linux GROUP ID         |          | 1000                  |
 
 `.devcontainer/devcontainer.json` の `name` 属性の値もプロジェクトに応じて変えてください。
