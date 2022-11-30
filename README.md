@@ -8,7 +8,6 @@ vscode の [devcontainer](https://code.visualstudio.com/docs/remote/containers) 
 
 - terraform
 - tfsec
-- tflint
 - awscli
 - session manager plugin
 
